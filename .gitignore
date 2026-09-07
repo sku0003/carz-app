@@ -1,0 +1,27 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Runtime data and logs
+backend/data/
+backend/backups/
+*.log
+npm-debug.log*
+
+# Flutter/build artifacts
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/pubspec.lock
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

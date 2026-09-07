@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarZ - سوق وتطبيق السيارات في العراق | النسخة الرسمية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <script>window.CARZ_API_BASE = '';</script>
+  <style>
+    :root {
+      --bg-dark: #0D1117;
+      --card-dark: #161B22;
+      --border-dark: #30363D;
+      --gold-primary: #FFD700;
+      --gold-secondary: #FFA500;
+      --accent-blue: #00E5FF;
+      --whatsapp-green: #25D366;
+      --text-main: #F0F6FC;
+      --text-muted: #8B949E;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    header {
+      background-color: var(--card-dark);
+      border-bottom: 1px solid var(--border-dark);
+      padding: 16px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary));
+      color: #000;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 6px 18px;
+      border-radius: 12px;
+      display: inline-block;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-nav {
+      color: var(--text-main);
+      background: transparent;
+      border: 1px solid var(--border-dark);
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-nav:hover {
+      border-color: var(--gold-primary);
+      color: var(--gold-primary);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary));
+      color: #000;
+      font-weight: 800;
+      border: none;
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+      color: #000;
+    }
+
+    .hero-section {
+      padding: 60px 5% 40px;
+      text-align: center;
+      background: radial-gradient(circle at top, #1c2430 0%, var(--bg-dark) 80%);
+    }
+
+    .hero-title {
+      font-size: 38px;
+      font-weight: 900;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #FFF, var(--gold-primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .download-card {
+      background: var(--card-dark);
+      border: 2px solid var(--gold-primary);
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 650px;
+      margin: 24px auto;
+      box-shadow: 0 8px 30px rgba(255, 215, 0, 0.2);
+    }
+
+    .btn-download-apk {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--gold-primary), var(--gold-secondary));
+      color: #000;
+      font-size: 20px;
+      font-weight: 900;
+      padding: 16px 36px;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .btn-download-apk:hover {
+      transform: scale(1.04);
+      box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+    }
+
+    .feed-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 5%;
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .cars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .car-card {
+      background: var(--card-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .car-card:hover {
+      border-color: var(--gold-primary);
+      transform: translateY(-4px);
+    }
+
+    .car-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .car-info {
+      padding: 16px;
+    }
+
+    .car-price {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--gold-primary);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card-dark);
+      border-radius: 20px;
+      border: 1px border-dark;
+      color: var(--text-muted);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--card-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 550px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-dark);
+      border-radius: 10px;
+      color: #FFF;
+      font-size: 14px;
+    }
+
+    .form-message {
+      min-height: 24px;
+      color: var(--gold-primary);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    footer {
+      background: var(--card-dark);
+      border-top: 1px solid var(--border-dark);
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-container">
+      <span class="logo-badge">CarZ</span>
+      <span style="font-weight: 700; color: var(--text-muted); font-size: 14px;">سوق السيارات العراقي</span>
+    </div>
+    <div class="nav-links">
+      <button class="btn-nav" onclick="openModal('addCarModal')">+ إضافة سيارة جديد</button>
+      <button class="btn-nav" onclick="openModal('authModal')">تسجيل الدخول</button>
+      <a href="/download/carz.apk" class="btn-nav btn-gold" download>تحميل التطبيق 📲</a>
+    </div>
+  </header>
+
+  <section class="hero-section">
+    <h1 class="hero-title">CarZ - المنصة الكبرى لشراء وبيع السيارات في العراق</h1>
+    <p style="color: var(--text-muted); max-width: 700px; margin: 0 auto 20px;">
+      تصفح أحدث الإعلانات الحقيقية، تواصل مباشرة عبر الواتساب والاتصال الهاتفي، وانشر سيارتك مجاناً لتصل لآلاف المشترين في كافة المحافظات العراقية.
+    </p>
+
+    <!-- APK Download Prominent Section -->
+    <div class="download-card">
+      <h3 style="color: var(--gold-primary); font-size: 20px; margin-bottom: 8px;">📲 تنزيل تطبيق CarZ للأندرويد (رسمي)</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">حمل النسخة المحمولة الرسمية لملف APK واستمتع بإشعارات فورية وتصفح فائق السرعة</p>
+      <a href="/download/carz.apk" class="btn-download-apk" download>
+        <span>تحميل تطبيق CarZ APK المباشر</span>
+        <span>📥</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Real Cars Feed Section -->
+  <section class="feed-container">
+    <div class="feed-header">
+      <h2>الإعلانات المعروضة حالياً</h2>
+      <button class="btn-nav btn-gold" onclick="openModal('addCarModal')">+ أضف سيارتك الآن</button>
+    </div>
+
+    <div id="carsGrid" class="cars-grid">
+      <!-- Dynamic Javascript Car Cards or Empty State -->
+    </div>
+  </section>
+
+  <!-- Add Car Modal -->
+  <div id="addCarModal" class="modal">
+    <div class="modal-content">
+      <h2 style="color: var(--gold-primary); margin-bottom: 16px;">إضافة سيارة جديدة للبيع</h2>
+      <form id="addCarForm">
+        <div class="form-group">
+          <label>عنوان الإعلان:</label>
+          <input type="text" id="carTitle" class="form-control" placeholder="مثال: تويوتا لاندكروزر VXR 2024 مكفولة" required>
+        </div>
+        <div class="form-group">
+          <label>الماركة:</label>
+          <select id="carBrand" class="form-control">
+            <option>تويوتا</option><option>هيونداي</option><option>كيا</option><option>دوج</option><option>نيسان</option><option>جيب</option><option>مرسيدس</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>المحافظة:</label>
+          <select id="carGov" class="form-control">
+            <option>بغداد</option><option>أربيل</option><option>البصرة</option><option>السليمانية</option><option>الموصل</option><option>النجف</option><option>كربلاء</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>السعر ($ USD):</label>
+          <input type="number" id="carPrice" class="form-control" placeholder="18500" required>
+        </div>
+        <div class="form-group">
+          <label>روابط الصور (الحد الأدنى 5 صور):</label>
+          <input type="text" class="form-control car-img-input" placeholder="رابط صورة 1" required style="margin-bottom:6px;">
+          <input type="text" class="form-control car-img-input" placeholder="رابط صورة 2" required style="margin-bottom:6px;">
+          <input type="text" class="form-control car-img-input" placeholder="رابط صورة 3" required style="margin-bottom:6px;">
+          <input type="text" class="form-control car-img-input" placeholder="رابط صورة 4" required style="margin-bottom:6px;">
+          <input type="text" class="form-control car-img-input" placeholder="رابط صورة 5" required style="margin-bottom:6px;">
+        </div>
+        <div class="form-group">
+          <label>وصف السيارة:</label>
+          <textarea id="carDesc" class="form-control" rows="3" placeholder="مواصفات السيارة والتفاصيل..."></textarea>
+        </div>
+        <button type="submit" class="btn-nav btn-gold" style="width: 100%; padding: 14px;">نشر الإعلان الآن 🚀</button>
+        <button type="button" class="btn-nav" style="width: 100%; margin-top: 8px;" onclick="closeModal('addCarModal')">إلغاء</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <h2 style="color: var(--gold-primary); margin-bottom: 16px;">تسجيل الدخول / حساب جديد</h2>
+      <form id="authForm">
+        <div class="form-group">
+          <label>نوع العملية:</label>
+          <select id="authMode" class="form-control">
+            <option value="login">تسجيل الدخول</option>
+            <option value="register">إنشاء حساب جديد</option>
+          </select>
+        </div>
+        <div class="form-group" id="authNameGroup" style="display: none;">
+          <label>الاسم:</label>
+          <input type="text" id="authName" class="form-control" placeholder="الاسم الكامل">
+        </div>
+        <div class="form-group">
+          <label>البريد الإلكتروني:</label>
+          <input type="email" id="authEmail" class="form-control" placeholder="example@domain.com" required>
+        </div>
+        <div class="form-group">
+          <label>كلمة المرور:</label>
+          <input type="password" id="authPassword" class="form-control" placeholder="6 أحرف على الأقل" required minlength="6">
+        </div>
+        <div id="authMessage" class="form-message"></div>
+        <button type="submit" class="btn-nav btn-gold" style="width: 100%; padding: 14px;">متابعة</button>
+        <button type="button" class="btn-nav" style="width: 100%; margin-top: 8px;" onclick="closeModal('authModal')">إغلاق</button>
+      </form>
+    </div>
+  </div>
+
+  <section id="privacy" class="feed-container">
+    <h2>سياسة الخصوصية</h2>
+    <p style="color: var(--text-muted);">نستخدم بيانات الحساب والإعلانات لتشغيل المنصة فقط. كلمات المرور تحفظ بصورة مشفرة، ولا نخزن بيانات البطاقات أو المعلومات المصرفية.</p>
+  </section>
+  <section id="terms" class="feed-container">
+    <h2>شروط الاستخدام</h2>
+    <p style="color: var(--text-muted);">يجب أن تكون الإعلانات حقيقية ومصرحاً بنشرها. يمنع المحتوى المضلل أو الضار، ويحق للمنصة إيقاف الإعلانات المخالفة.</p>
+  </section>
+
+  <footer>
+    <p><a href="#privacy" style="color: var(--gold-primary);">سياسة الخصوصية</a> | <a href="#terms" style="color: var(--gold-primary);">شروط الاستخدام</a></p>
+    <p>جميع الحقوق محفوظة © 2026 لتطبيق وموقع CarZ - سوق السيارات المتكامل في العراق.</p>
+  </footer>
+
+  <script>
+    const API_BASE = window.CARZ_API_BASE || '';
+    let realCars = [];
+    let authToken = localStorage.getItem('carz_token') || '';
+
+    async function loadCars() {
+      try {
+        const res = await fetch(`${API_BASE}/api/cars`);
+        const data = await res.json();
+        realCars = data.data || [];
+        renderFeed();
+      } catch (e) {
+        renderFeed();
+      }
+    }
+
+    function renderFeed() {
+      const grid = document.getElementById('carsGrid');
+      if (!realCars || realCars.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div style="font-size: 50px; margin-bottom: 12px;">🚗</div>
+            <h3 style="color: var(--text-main); margin-bottom: 8px;">لا توجد سيارات معروضة حالياً</h3>
+            <p>كن أول من ينشر سيارته على منصة CarZ لتصل لآلاف المشترين في العراق!</p>
+            <button class="btn-nav btn-gold" style="margin-top: 16px;" onclick="openModal('addCarModal')">+ أضف إعلانك الأول مجاناً</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = realCars.map(c => `
+        <div class="car-card">
+          ${c.images && c.images.length ? `<img src="${c.images[0]}" alt="${c.title}">` : '<div style="height: 200px; background: var(--bg-dark); display: grid; place-items: center; color: var(--text-muted);">لا توجد صورة</div>'}
+          <div class="car-info">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">${c.title}</h3>
+            <div class="car-price">$${c.priceUSD} <span style="font-size: 12px; color: var(--text-muted);">(${(c.priceIQD/1000000).toFixed(1)} مليون د.ع)</span></div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">المحافظة: ${c.governorate} | السنة: ${c.year}</div>
+            <a href="https://wa.me/966562514125?text=مهتم_بسيارة_${c.title}" target="_blank" class="btn-nav" style="display: block; text-align: center; margin-top: 12px; background: var(--whatsapp-green); color: #FFF; border: none;">تواصل عبر واتساب 💬</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('addCarForm').onsubmit = async function(e) {
+      e.preventDefault();
+      if (!authToken) {
+        closeModal('addCarModal');
+        openModal('authModal');
+        document.getElementById('authMessage').textContent = 'سجل الدخول أولاً حتى يتم ربط الإعلان بحسابك.';
+        return;
+      }
+      const imgs = Array.from(document.querySelectorAll('.car-img-input')).map(i => i.value.trim()).filter(v => v.length > 0);
+      if (imgs.length < 5) {
+        alert("يرجى إدخال 5 صور على الأقل للسيارة إجبارياً!");
+        return;
+      }
+
+      const newCar = {
+        title: document.getElementById('carTitle').value,
+        brand: document.getElementById('carBrand').value,
+        governorate: document.getElementById('carGov').value,
+        priceUSD: Number(document.getElementById('carPrice').value),
+        priceIQD: Number(document.getElementById('carPrice').value) * 1500,
+        year: 2024,
+        description: document.getElementById('carDesc').value,
+        images: imgs
+      };
+      const response = await fetch(`${API_BASE}/api/cars`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+        body: JSON.stringify(newCar)
+      });
+      const data = await response.json();
+      if (!response.ok) { alert(data.message || 'تعذر نشر الإعلان'); return; }
+      realCars.unshift(data.data);
+      renderFeed();
+      closeModal('addCarModal');
+      this.reset();
+      alert("تم نشر إعلانك بنجاح على منصة CarZ!");
+    };
+
+    document.getElementById('authMode').onchange = function() {
+      document.getElementById('authNameGroup').style.display = this.value === 'register' ? 'block' : 'none';
+    };
+
+    document.getElementById('authForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const mode = document.getElementById('authMode').value;
+      const payload = {
+        name: document.getElementById('authName').value,
+        email: document.getElementById('authEmail').value,
+        password: document.getElementById('authPassword').value
+      };
+      const response = await fetch(`${API_BASE}/api/auth/${mode}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      const message = document.getElementById('authMessage');
+      if (!response.ok) { message.textContent = data.message || 'تعذر إتمام العملية'; return; }
+      authToken = data.token;
+      localStorage.setItem('carz_token', authToken);
+      message.textContent = `مرحباً ${data.user.name}`;
+      setTimeout(() => closeModal('authModal'), 500);
+    };
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    loadCars();
+  </script>
+</body>
+</html>
