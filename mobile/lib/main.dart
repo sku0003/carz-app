@@ -6,7 +6,7 @@ import 'providers/chat_provider.dart';
 import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
 
-const supabaseAnonKey = 'sb_publishable_JONXidwGD6SRCgKIaPRVtA_5QgJPLB7';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprdnJjcXFuY3VtYnhjYXRqbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NjUwNjEsImV4cCI6MjEwNDQ0MTA2MX0.VE4vRv2KOFR77rxM7-x7FFUk9pYIpL2g7CGbbi0RCpg';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
