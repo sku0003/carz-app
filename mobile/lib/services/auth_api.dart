@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthApi {
   static const String baseUrl = String.fromEnvironment(
     'CARZ_API_URL',
-    defaultValue: 'http://10.0.2.2:5000',
+    defaultValue: 'https://zkvrcqqncumbxcatjmsh.supabase.co/rest/v1',
   );
 
   static Future<String> authenticate({

@@ -31,7 +31,9 @@ class CarProvider with ChangeNotifier {
 
   static const String _apiBaseUrl = String.fromEnvironment(
     'CARZ_API_URL',
-    defaultValue: 'http://10.0.2.2:5000',
+    defaultValue: 'https://zkvrcqqncumbxcatjmsh.supabase.co/rest/v1',
+
+
   );
 
   Future<void> loadCars() async {

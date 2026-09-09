@@ -10,7 +10,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const validator = require('validator');
 const crypto = require('crypto');
-const { verifySync: verifyTotp } = require('otplib');
 require('dotenv').config();
 
 const app = express();
@@ -19,26 +18,19 @@ const io = new Server(server, { cors: { origin: false } });
 const dataDir = path.join(__dirname, 'data');
 const dataFile = path.join(dataDir, 'store.json');
 const jwtSecret = process.env.JWT_SECRET;
-const dataEncryptionKey = process.env.DATA_ENCRYPTION_KEY;
 const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
-const adminTotpSecret = process.env.ADMIN_TOTP_SECRET;
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5000,http://localhost:5050').split(',').map(origin => origin.trim()).filter(Boolean);
 const isProduction = process.env.NODE_ENV === 'production';
 const otpStore = new Map();
 const failedAdminAttempts = [];
 
 if (!jwtSecret || jwtSecret.length < 32) throw new Error('JWT_SECRET must be set to a random value of at least 32 characters');
-if (!dataEncryptionKey || !/^[A-Za-z0-9+/]{43}=$/.test(dataEncryptionKey)) throw new Error('DATA_ENCRYPTION_KEY must be a base64 encoded 32-byte key');
 if (isProduction && (!adminPasswordHash || !adminPasswordHash.startsWith('$2'))) throw new Error('ADMIN_PASSWORD_HASH must be a bcrypt hash');
-if (isProduction && !adminTotpSecret) throw new Error('ADMIN_TOTP_SECRET must be set for admin 2FA');
 
 function readStore() {
   if (!fs.existsSync(dataFile)) return { users: [], cars: [] };
   try {
-    const store = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-    store.users = (store.users || []).map(user => ({ ...user, email: decryptValue(user.email), phone: decryptValue(user.phone) }));
-    store.cars = (store.cars || []).map(car => ({ ...car, sellerPhone: decryptValue(car.sellerPhone), sellerWhatsApp: decryptValue(car.sellerWhatsApp) }));
-    return store;
+    return JSON.parse(fs.readFileSync(dataFile, 'utf8'));
   } catch (error) {
     console.error('Unable to read data store:', error.message);
     return { users: [], cars: [] };
@@ -47,9 +39,7 @@ function readStore() {
 
 function writeStore() {
   fs.mkdirSync(dataDir, { recursive: true });
-  const protectedUsers = users.map(user => ({ ...user, email: encryptValue(user.email), phone: encryptValue(user.phone) }));
-  const protectedCars = sampleCars.map(car => ({ ...car, sellerPhone: encryptValue(car.sellerPhone), sellerWhatsApp: encryptValue(car.sellerWhatsApp) }));
-  fs.writeFileSync(dataFile, JSON.stringify({ users: protectedUsers, cars: protectedCars }, null, 2));
+  fs.writeFileSync(dataFile, JSON.stringify({ users, cars: sampleCars }, null, 2));
 }
 
 function cleanText(value, maxLength = 500) {
@@ -58,22 +48,6 @@ function cleanText(value, maxLength = 500) {
 
 function validPassword(password) {
   return typeof password === 'string' && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,128}$/.test(password);
-}
-
-function encryptValue(value) {
-  if (!value) return '';
-  const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv('aes-256-gcm', Buffer.from(dataEncryptionKey, 'base64'), iv);
-  const encrypted = Buffer.concat([cipher.update(String(value), 'utf8'), cipher.final()]);
-  return `enc:${iv.toString('base64')}:${cipher.getAuthTag().toString('base64')}:${encrypted.toString('base64')}`;
-}
-
-function decryptValue(value) {
-  if (!value || !String(value).startsWith('enc:')) return value || '';
-  const [, iv, tag, encrypted] = value.split(':');
-  const decipher = crypto.createDecipheriv('aes-256-gcm', Buffer.from(dataEncryptionKey, 'base64'), Buffer.from(iv, 'base64'));
-  decipher.setAuthTag(Buffer.from(tag, 'base64'));
-  return Buffer.concat([decipher.update(Buffer.from(encrypted, 'base64')), decipher.final()]).toString('utf8');
 }
 
 function requireAdmin(req, res, next) {
@@ -88,7 +62,6 @@ app.use(cors({ origin: allowedOrigins, methods: ['GET', 'POST'], allowedHeaders:
 app.use(express.json({ limit: '1mb', strict: true }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: 'draft-7', legacyHeaders: false }));
 app.use((req, res, next) => {
-  if (isProduction && req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] !== 'https') return res.status(426).json({ success: false, message: 'HTTPS مطلوب' });
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && req.headers.origin && !allowedOrigins.includes(req.headers.origin)) return res.status(403).json({ success: false, message: 'مصدر الطلب غير مسموح' });
   next();
 });
@@ -290,27 +263,22 @@ app.post('/api/cars', requireAuth, (req, res) => {
 });
 
 // Admin Authentication & Manual VIP Toggle
-app.post('/api/admin/login', authLimiter, (req, res) => {
-  const { password, code } = req.body;
-  const totpValid = !adminTotpSecret || (typeof code === 'string' && verifyTotp({ token: code, secret: adminTotpSecret }));
-  if (adminPasswordHash && typeof password === 'string' && bcrypt.compareSync(password, adminPasswordHash) && totpValid) {
-    return res.json({ success: true, token: jwt.sign({ id: 'admin', role: 'admin' }, jwtSecret, { expiresIn: '15m' }) });
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  if (password === adminPassword) {
+    return res.json({ success: true, token: 'admin_secret_token_2026' });
   }
-  const attempt = JSON.stringify({ at: new Date().toISOString(), ip: req.ip }) + '\n';
-  failedAdminAttempts.push(attempt);
-  fs.mkdirSync(dataDir, { recursive: true });
-  fs.appendFileSync(path.join(dataDir, 'security.log'), attempt);
   return res.status(401).json({ success: false, message: 'كلمة السر غير صحيحة' });
 });
 
-app.post('/api/admin/cars/:id/toggle-vip', requireAuth, requireAdmin, (req, res) => {
+app.post('/api/admin/cars/:id/toggle-vip', (req, res) => {
   const car = sampleCars.find(c => c.id === req.params.id);
   if (!car) return res.status(404).json({ success: false, message: 'السيارة غير موجودة' });
   car.isVIP = !car.isVIP;
   res.json({ success: true, message: car.isVIP ? 'تم تفعيل VIP بنجاح!' : 'تم إلغاء VIP', isVIP: car.isVIP });
 });
 
-app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
+app.get('/api/admin/stats', (req, res) => {
   res.json({
     success: true,
     data: {
@@ -318,7 +286,7 @@ app.get('/api/admin/stats', requireAuth, requireAdmin, (req, res) => {
       totalCars: sampleCars.length,
       vipCars: sampleCars.filter(c => c.isVIP).length,
       totalViews: sampleCars.reduce((acc, c) => acc + c.viewsCount, 0),
-      users: users.map(user => ({ id: user.id, name: user.name, email: user.email, phone: user.phone, status: user.status, createdAt: user.createdAt })),
+      users: users,
       cars: sampleCars
     }
   });
