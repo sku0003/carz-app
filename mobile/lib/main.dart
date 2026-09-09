@@ -6,6 +6,8 @@ import 'providers/chat_provider.dart';
 import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
 
+const supabaseAnonKey = 'sb_publishable_JONXidwGD6SRCgKIaPRVtA_5QgJPLB7';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const CarZApp());
